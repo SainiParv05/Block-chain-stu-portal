@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AI Safety Platform</title>
+    <link href="styles.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-10">
+
+    <h1 class="text-3xl font-bold mb-4">AI Safety Hackathon App</h1>
+
+    <textarea id="userInput" 
+              class="w-full p-3 border rounded"
+              placeholder="Enter your text..."></textarea>
+
+    <div class="mt-5 space-x-3">
+        <button onclick="encrypt()" class="px-4 py-2 bg-blue-600 text-white rounded">Encrypt</button>
+        <button onclick="summarize()" class="px-4 py-2 bg-green-600 text-white rounded">Summarize</button>
+        <button onclick="checkMisinfo()" class="px-4 py-2 bg-red-600 text-white rounded">Check Misinformation</button>
+    </div>
+
+    <pre id="output" class="mt-5 bg-white p-5 rounded shadow"></pre>
+
+    <script src="script.js"></script>
+</body>
+</html>
