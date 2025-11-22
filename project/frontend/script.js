@@ -1,36 +1,74 @@
 const API = "http://127.0.0.1:8000";
 
-function getInput() {
-    return document.getElementById("userInput").value;
-}
+const input = document.getElementById("inputText");
+const output = document.getElementById("output");
+const saveBtn = document.getElementById("saveBtn");
 
-function show(res) {
-    document.getElementById("output").innerText = JSON.stringify(res, null, 2);
-}
+// Attach actions to buttons
+document.querySelectorAll(".action-btn").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        const action = btn.dataset.action;
+        const text = input.value;
 
-async function encrypt() {
-    let res = await fetch(API + "/crypto/encrypt", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: getInput()})
+        if (!text && action !== "tips") {
+            output.textContent = "Please enter text first.";
+            return;
+        }
+
+        let route = "";
+        let payload = { text };
+
+        switch (action) {
+            case "summarize": route = "/transform/summarize"; break;
+            case "rephrase": route = "/transform/rephrase"; break;
+            case "encrypt": route = "/crypto/encrypt"; break;
+            case "decrypt": route = "/crypto/decrypt"; break;
+            case "safety": route = "/safety/check"; break;
+            case "tips": route = "/awareness/tips"; payload = {}; break;
+        }
+
+        const res = await fetch(API + route, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: Object.keys(payload).length ? JSON.stringify(payload) : null
+        });
+
+        const data = await res.json();
+        output.textContent = JSON.stringify(data, null, 2);
     });
-    show(await res.json());
-}
+});
 
-async function summarize() {
-    let res = await fetch(API + "/transform/summarize", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: getInput()})
-    });
-    show(await res.json());
-}
+// Save to Repo
+saveBtn.addEventListener("click", async () => {
+    const text = input.value;
+    const result = output.textContent;
 
-async function checkMisinfo() {
-    let res = await fetch(API + "/safety/misinformation", {
+    if (!text || !result) return alert("Nothing to save!");
+
+    await fetch(API + "/repo/", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({text: getInput()})
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ input: text, output: result })
     });
-    show(await res.json());
-}
+
+    alert("Saved successfully!");
+});
+
+// Modal logic
+const repoBtn = document.getElementById("repoBtn");
+const repoModal = document.getElementById("repoModal");
+const repoContent = document.getElementById("repoContent");
+const closeRepo = document.getElementById("closeRepo");
+
+// View Repository
+repoBtn.addEventListener("click", async () => {
+    const res = await fetch(API + "/repo/");
+    const data = await res.json();
+    repoContent.textContent = JSON.stringify(data, null, 2);
+    repoModal.classList.remove("hidden");
+});
+
+// Close Modal
+closeRepo.addEventListener("click", () => {
+    repoModal.classList.add("hidden");
+});
